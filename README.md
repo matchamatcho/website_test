@@ -1,26 +1,2 @@
-# website_test
-
-<!DOCTYPE html>
-<html>
-
-<head>
-	<meta charset="UTF-8">
-	<title>ページタイトル</title>
-	<style>
-		/* CSSを書くところ */
-		h1 {
-			color: blue;
-		}
-	</style>
-</head>
-
-<body>
-	<!-- 実際に表示される領域 -->
-	<h1>Hello Html</h1>
-	<script>
-		// JavaScriptを書くところ
-		console.log("Hello JavaScript");
-	</script>
-</body>
-
-</html>
+# pushのながれ　
+https://qiita.com/nt-7/items/c5ea999a2638e03ee418
