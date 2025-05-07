@@ -7,7 +7,7 @@
 2. ✔ Project name: » website_test<br>
   ✔ Select a framework: » React<br>
   ✔ Select a variant: » TypeScript<br>
-3. 以下を実行
+3. 以下を実行<br>
   $cd my-chat-app<br>
   $npm install<br>
   $npm install socket.io-client<br>
