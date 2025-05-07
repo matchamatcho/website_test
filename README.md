@@ -22,7 +22,7 @@ $node server.mjs
 ※両方起動する
 
 ## pushとかクローンとか
-[pushのながれ][def2]
+[pushのながれ][def2]　<br>
 新しいbranchをpushするときは<br>
 $git push origin HEAD:ブランチ名
 じゃなきゃ入らない？
