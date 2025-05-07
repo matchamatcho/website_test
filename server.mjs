@@ -1,11 +1,11 @@
 // server.mjs
 import express from 'express';
-import http from 'http';
+import { createServer } from 'http';
 import cors from 'cors';
 import { Server } from 'socket.io';
 
 const app = express();
-app.use(cors());
+app.use(cors()); // フロントからのアクセスを許可
 
 app.get('/', (req, res) => {
   res.send('チャットサーバーは起動しています');
