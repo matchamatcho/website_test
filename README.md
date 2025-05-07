@@ -3,16 +3,15 @@
 ## 環境構築
 [TypeScript][def3]
 
-1.
-プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest
-✔ Project name: » website_test
-✔ Select a framework: » React
-✔ Select a variant: » TypeScript
-2.
-$cd my-chat-app
-$npm install
-$npm install socket.io-client
-$npm install express socket.io cors
+1. プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest<br>
+2. ✔ Project name: » website_test<br>
+  ✔ Select a framework: » React<br>
+  ✔ Select a variant: » TypeScript<br>
+3. 以下を実行
+  $cd my-chat-app<br>
+  $npm install<br>
+  $npm install socket.io-client<br>
+  $npm install express socket.io cors<br>
 
 ## サーバー起動方法
 ###フロントエンド
