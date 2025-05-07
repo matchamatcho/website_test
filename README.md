@@ -23,6 +23,9 @@ $node server.mjs
 
 ## pushとかクローンとか
 [pushのながれ][def2]
+新しいbranchをpushするときは<br>
+$git push origin HEAD:ブランチ名
+じゃなきゃ入らない？
 
 [再クローン][def]
 
