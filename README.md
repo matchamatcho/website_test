@@ -2,13 +2,31 @@
 
 ## 環境構築
 [TypeScript][def3]
+
+1.プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest
+✔ Project name: » website_test
+✔ Select a framework: » React
+✔ Select a variant: » TypeScript
+2.
+$cd my-chat-app
+$npm install
+$npm install socket.io-client
+$npm install express socket.io cors
+
+##サーバー起動方法
+###フロントエンド
+npm run dev
+###バックエンド
+node server.mjs
+
+※両方起動する
+
 ## pushとかクローンとか
 [pushのながれ][def2]
 
 [再クローン][def]
 
-これの最後のチャットみたいに進めるのが最適のようです
-[chatgpt][def4]
+
 
 [def]: https://qiita.com/hellhellmymy/items/b30db8e6ff6cdad9efcd
 [def2]: https://qiita.com/nt-7/items/c5ea999a2638e03ee418
