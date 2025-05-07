@@ -15,9 +15,9 @@
 
 ## サーバー起動方法
 ### フロントエンド
-npm run dev
+$npm run dev
 ### バックエンド
-node server.mjs
+$node server.mjs
 
 ※両方起動する
 
