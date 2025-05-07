@@ -14,9 +14,9 @@
   $npm install express socket.io cors<br>
 
 ## サーバー起動方法
-###フロントエンド
+### フロントエンド
 npm run dev
-###バックエンド
+### バックエンド
 node server.mjs
 
 ※両方起動する
