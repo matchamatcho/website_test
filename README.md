@@ -1,3 +1,22 @@
+# 情報共有
+
+## 環境構築
+[TypeScript][def3]
+## pushとかクローンとか
+[pushのながれ][def2]
+
+[再クローン][def]
+
+これの最後のチャットみたいに進めるのが最適のようです
+[chatgpt][def4]
+
+[def]: https://qiita.com/hellhellmymy/items/b30db8e6ff6cdad9efcd
+[def2]: https://qiita.com/nt-7/items/c5ea999a2638e03ee418
+[def3]: https://qiita.com/ochiochi/items/efdaa0ae7d8c972c8103
+[def4]: https://chatgpt.com/share/68132de3-48a4-8003-be83-c0e22c0206d2
+
+
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
