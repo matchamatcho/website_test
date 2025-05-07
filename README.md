@@ -3,7 +3,8 @@
 ## 環境構築
 [TypeScript][def3]
 
-1.プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest
+1.
+プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest
 ✔ Project name: » website_test
 ✔ Select a framework: » React
 ✔ Select a variant: » TypeScript
@@ -13,7 +14,7 @@ $npm install
 $npm install socket.io-client
 $npm install express socket.io cors
 
-##サーバー起動方法
+## サーバー起動方法
 ###フロントエンド
 npm run dev
 ###バックエンド
