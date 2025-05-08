@@ -103,3 +103,5 @@ export default tseslint.config({
   },
 })
 ```
+
+https://chatgpt.com/share/681c8396-91ec-800d-8829-303c49dbf806
