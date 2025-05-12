@@ -41,7 +41,7 @@ function App() {
 //UI
   return (
     <div style={{ padding: 20 }}>
-      <h1>チャットアプリ</h1>
+      <h3>ToDoリストを作ろう</h3>
       <div style={{ height: 200, overflowY: 'scroll', border: '1px solid #ccc', padding: 10 }}>
         {messages.map((msg, i) => (
           //メッセージ配列を一つずつ描画

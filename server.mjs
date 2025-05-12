@@ -1,12 +1,13 @@
 // server.mjs
 import express from 'express';
-import { createServer } from 'http';
+import http from 'http';
 import cors from 'cors';
 import { Server } from 'socket.io';
 
 const app = express();
 app.use(cors()); // フロントからのアクセスを許可
 
+//バックエンドを開いたときの挙動
 app.get('/', (req, res) => {
   res.send('チャットサーバーは起動しています');
 });
@@ -33,6 +34,6 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(4000, () => {
+server.listen(4000, '0.0.0.0',() => {
   console.log('✅ Socket.IO サーバーが 4000番ポートで起動中');
 });
