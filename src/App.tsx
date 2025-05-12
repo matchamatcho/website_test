@@ -1,63 +1,180 @@
-//状態を管理するフック
-import { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
+//useStateフックをインポート
+// ステートの値が更新されるとそのステートを持つコンポーネントとその子がすべて再レンダリングされる。
+import { useState } from 'react';
 
-//import reactLogo from './assets/react.svg';
-//import viteLogo from '/vite.svg';
-import './App.css';
+//型を定義 アッパーキャメルケース
+type Todo = {
+  //プロパティ value は文字列型
+  value: string;
+  readonly id: number;
+  checked: boolean;
+  removed: boolean;
+};
 
-//バックエンドに接続
-const socket = io('http://localhost:4000');
+type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
-function App() {
-  //テキスト欄に現在入力されている内容 
-  const [message, setMessage] = useState('');
-  //配列として保持されたチャット履歴
-  const [messages, setMessages] = useState<string[]>([]);
+export const App = () => {
+  const [text, setText] = useState('');
+  //useState<型指定>
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [filter, setFilter] = useState<Filter>('all');
 
-  //最初に実行される
-  useEffect(() => {
-    //サーバーから"receiveMessage"イベントを受信したらメッセージを履歴に追加
-    socket.on('receiveMessage', (newMessage: string) => {
-      setMessages((prev) => [...prev, newMessage]);
-    });
+  //追加ボタンがおされた時に呼び出される todosステートを更新する関数
+  const handleSubmit = () => {
+      if(!text) return;
 
-    //コンポーネントが消えるときにイベントを解除
-    return () => {
-      socket.off('receiveMessage');
-    };
-  }, []);
+      //新規作成
+      const newTodo: Todo={
+        value: text,
+        id: new Date().getTime(),
+        checked: false,
+        removed: false,
+      };
+      //更新前のステート(todos)をもとに新たなステートを作成。todosの先頭にnewTodoを追加
+      setTodos((todos) => [newTodo, ...todos]);
+      //フォームへの入力をクリア
+      setText('');
+  }
 
-  //送信ボタンを押したときの処理
-  const handleSend = () => {
-    if (message.trim() !== '') {
-      //空でないメッセージをサーバーに送信
-      socket.emit('sendMessage', message);
-      //入力欄を空にリセット(送った感が出るね)
-      setMessage('');
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
   };
 
-//UI
-  return (
-    <div style={{ padding: 20 }}>
-      <h3>ToDoリストを作ろう!</h3>
-      <div style={{ height: 200, overflowY: 'scroll', border: '1px solid #ccc', padding: 10 }}>
-        {messages.map((msg, i) => (
-          //メッセージ配列を一つずつ描画
-          <div key={i}>{msg}</div>
-        ))}
-      </div>
-    <input
-      type="text"
-      value={message}
-      placeholder="メッセージを入力"
-      onChange={(e) => setMessage(e.target.value)}
-      style={{ width: '80%', marginRight: 10 }}
-    />
-    <button onClick={handleSend}>送信</button>
-    </div>
-);
-}
+  const handleEdit = (id: number, value: string) => {
+    setTodos((todos) => {
+      //それぞれのtodoについて処理する関数
+      //mapはshallow copyであり、表層しかコピーしない＝二段目以降のプロパティを参照する際に元の配列を参照してしまう。
+      const newTodos = todos.map((todo)=>{
+        if (todo.id === id) {
+          //スプレッド構文はイミュータブルな操作＝コピーを作成して展開する操作！
+          // 配列の階層ではなく要素の階層でshallow copyするからプロパティに関してもイミュータブルになる。
+          // 中のvalueプロパティを引数(入力文字列）で上書きする
+          return { ...todo, value: value};
+        }
+        return todo;
 
-export default App
+      });
+
+      /*
+            // todos ステート配列をチェック（あとでコメントアウト）
+            console.log('=== Original todos ===');
+            todos.map((todo) => {
+              console.log(`id: ${todo.id}, value: ${todo.value}`);
+            });
+            */
+
+      // /todosをnewTodosとして新たなステートを作成
+      return newTodos;
+    });
+  };
+
+  const handleCheck = (id: number, checked: boolean) => {
+    setTodos((todos) => {
+      const newTodos = todos.map((todo) => {
+        if (todo.id === id) {
+          return{ ...todo, checked};
+        }
+        return todo;
+      });
+
+      return newTodos;
+    });
+  };
+
+  const handleRemove = (id: number, removed: boolean) => {
+    setTodos((todos) => {
+      const newTodos = todos.map((todo) => {
+        if (todo.id === id) {
+          return { ...todo, removed};
+        }
+        return todo;
+      });
+
+      return newTodos;
+    });
+  };
+
+  const handleFilter = (filter: Filter) => {
+    setFilter(filter);
+  };
+
+  const filteredTodos = todos.filter((todo) => {
+    // filter ステートの値に応じて異なる内容の配列を返す
+    switch (filter) {
+      case 'all':
+        // 削除されていないもの
+        return !todo.removed;
+      case 'checked':
+        // 完了済 **かつ** 削除されていないもの
+        return todo.checked && !todo.removed;
+      case 'unchecked':
+        // 未完了 **かつ** 削除されていないもの
+        return !todo.checked && !todo.removed;
+      case 'removed':
+        // 削除済みのもの
+        return todo.removed;
+      default:
+        return todo;
+    }
+  });
+
+
+
+  return (
+    //単一のjsx要素を記述する<p>1行目</p> <p>2行目</p>のように複数要素はNG
+    <div>
+      <select defaultValue="all" onChange={(e) => handleFilter(e.target.value as Filter)}>
+        <option value="all">すべてのタスク</option>
+        <option value="checked">完了したタスク</option>
+        <option value="unchecked">現在のタスク</option>
+        <option value="removed">ごみ箱</option>
+      </select>
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <input 
+          type="text" 
+          // onChange イベント（＝入力テキストの変化）を text ステートに反映する
+          value={text} 
+          disabled={filter === 'checked' || filter === 'removed'}
+          onChange={(e) => handleChange(e)} />
+        <input
+          type="submit"
+          value="追加"
+          disabled={filter === 'checked' || filter === 'removed'}
+          onSubmit={handleSubmit}
+        />
+      </form>
+
+      {/* 追加されたToDoをリスト表示 */}
+      <ul>
+        {/* mapは非破壊メソッド＝イミュータブル */}
+        {filteredTodos.map((todo) => {
+          return(
+            <li key={todo.id}>
+              <input
+                type="checkbox"
+                disabled={todo.removed}
+                checked={todo.checked}
+                onChange={() => handleCheck(todo.id, !todo.checked)}
+              />
+              <input
+                type="text"
+                disabled={todo.checked||todo.removed}
+                value={todo.value}
+                onChange={(e) => handleEdit(todo.id, e.target.value)}
+              />
+              <button onClick={() => handleRemove(todo.id, !todo.removed)}>
+                {todo.removed ? '復元' : '削除'}  
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+    </div>
+  );
+};
