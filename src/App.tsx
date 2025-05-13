@@ -118,6 +118,10 @@ export const App = () => {
     }
   });
 
+  const handleEmpty = () => {
+    setTodos((todos) => todos.filter((todo) => !todo.removed));
+  }
+
 
 
   return (
@@ -129,27 +133,35 @@ export const App = () => {
         <option value="unchecked">現在のタスク</option>
         <option value="removed">ごみ箱</option>
       </select>
-      <form 
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleSubmit();
-        }}
-      >
-        <input 
-          type="text" 
-          // onChange イベント（＝入力テキストの変化）を text ステートに反映する
-          value={text} 
-          disabled={filter === 'checked' || filter === 'removed'}
-          onChange={(e) => handleChange(e)} />
-        <input
-          type="submit"
-          value="追加"
-          disabled={filter === 'checked' || filter === 'removed'}
-          onSubmit={handleSubmit}
-        />
-      </form>
-
-      {/* 追加されたToDoをリスト表示 */}
+       {/* フィルターが `removed` のときは「ごみ箱を空にする」ボタンを表示 */}
+    {filter === 'removed' ? (
+      <button 
+      onClick={handleEmpty}
+      disabled={todos.filter((todo) => todo.removed).length === 0}
+      >ゴミ箱を空にする</button>
+    ) : (
+        //フィルターがcheckedでなければフォームを表示
+      filter !== 'checked' && (
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
+          }}
+        >
+          <input 
+            type="text" 
+            // onChange イベント（＝入力テキストの変化）を text ステートに反映する
+            value={text} 
+            onChange={(e) => handleChange(e)} />
+          <input
+            type="submit"
+            value="追加"
+            onSubmit={handleSubmit}
+          />
+        </form>
+      )
+    )}
+      {/*// 追加されたToDoをリスト表示*/}
       <ul>
         {/* mapは非破壊メソッド＝イミュータブル */}
         {filteredTodos.map((todo) => {
@@ -173,6 +185,7 @@ export const App = () => {
             </li>
           );
         })}
+        
       </ul>
 
     </div>
