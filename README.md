@@ -17,7 +17,7 @@
 ### フロントエンド
 $npm run dev
 ### バックエンド
-$node server.mjs
+$node server/server.mjs
 
 ※両方起動する
 
