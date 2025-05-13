@@ -22,6 +22,8 @@ const LoginForm = () => {
 
       if (res.ok) {
         setMessage(`✅ ${data.message || 'ログイン成功'}`);
+        //ログイン成功時にTodoAppに遷移
+        navigate('/todo');
       } else {
         setMessage(`❌ ${data.message || 'ログインに失敗しました'}`);
       }

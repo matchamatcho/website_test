@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './Login';
 import RegisterForm from './RegisterForm'
+import TodoApp from './TodoApp'
 //import Chat from './Chat';
 
 const App: React.FC = () => {
@@ -11,6 +12,7 @@ const App: React.FC = () => {
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/todo" element={<TodoApp />} />
         {/* <Route path="/chat" element={<Chat />} /> */}
       </Routes>
     </Router>
