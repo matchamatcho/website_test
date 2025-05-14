@@ -13,7 +13,7 @@ type Todo = {
 
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
-export const App = () => {
+export const TodoApp = () => {
   const [text, setText] = useState('');
   //useState<型指定>
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -191,3 +191,6 @@ export const App = () => {
     </div>
   );
 };
+
+
+export default TodoApp;
