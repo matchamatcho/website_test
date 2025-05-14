@@ -1,6 +1,6 @@
 # 情報共有
 
-## 環境構築
+## 環境構築a
 [TypeScript][def3]
 
 1. プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest<br>
@@ -17,12 +17,15 @@
 ### フロントエンド
 $npm run dev
 ### バックエンド
-$node server.mjs
+$node server/server.mjs
 
 ※両方起動する
 
 ## pushとかクローンとか
-[pushのながれ][def2]
+[pushのながれ][def2]　<br>
+新しいbranchをpushするときは<br>
+$git push origin HEAD:ブランチ名
+じゃなきゃ入らない？
 
 [再クローン][def]
 
@@ -100,3 +103,5 @@ export default tseslint.config({
   },
 })
 ```
+
+https://chatgpt.com/share/681c8396-91ec-800d-8829-303c49dbf806
