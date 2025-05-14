@@ -24,12 +24,18 @@ app.post('/login', async (req, res) => {
   // SQLiteからユーザーを検索
   const user = await findUserByEmail(email);
 
-  if (user && user.password === password) {
-    const token = generateToken(email);  // auth.jsのgenerateTokenを使用
-    return res.json({ token, message: 'ログイン成功' });
-  } else {
-    return res.status(401).json({ message: 'ログイン失敗' });
+  if (!user) {
+    return res.status(401).json({ message: 'ユーザーが見つかりません' });
   }
+
+  const isMatch = await comparePassword(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'パスワードが間違っています' });
+  }
+
+  const token = generateToken(email);
+  return res.json({ token, message: 'ログイン成功' });
+  
 });
 
 // ユーザー登録用エンドポイント
