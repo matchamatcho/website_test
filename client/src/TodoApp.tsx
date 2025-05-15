@@ -1,10 +1,10 @@
-//useStateフックをインポート
-// ステートの値が更新されるとそのステートを持つコンポーネントとその子がすべて再レンダリングされる。
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, query, onSnapshot } from 'firebase/firestore';
+import { db, auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
-//型を定義 アッパーキャメルケース
+// 型定義
 type Todo = {
-  //プロパティ value は文字列型
   value: string;
   readonly id: number;
   checked: boolean;
@@ -15,31 +15,50 @@ type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
 export const TodoApp = () => {
   const [text, setText] = useState('');
-  //useState<型指定>
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+  const [uid, setUid] = useState<string | null>(null);
 
-  //追加ボタンがおされた時に呼び出される todosステートを更新する関数
-  const handleSubmit = () => {
-      if(!text) return;
+  // ログイン中のユーザーを監視
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUid(user.uid);
+      }
+    });
+    return unsubscribe;
+  }, []);
 
-      //新規作成
-      const newTodo: Todo={
-        value: text,
-        id: new Date().getTime(),
-        checked: false,
-        removed: false,
-      };
-      //更新前のステート(todos)をもとに新たなステートを作成。todosの先頭にnewTodoを追加
-      setTodos((todos) => [newTodo, ...todos]);
-      //フォームへの入力をクリア
-      setText('');
-  }
+  // Firestoreからデータ取得
+  useEffect(() => {
+    if (!uid) return;
+    const q = query(collection(db, 'users', uid, 'todos'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const todosData = snapshot.docs.map((doc) => doc.data() as Todo);
+      setTodos(todosData);
+    });
+    return unsubscribe;
+  }, [uid]);
+
+  const handleSubmit = async () => {
+    if (!text || !uid) return;
+    const newTodo: Todo = {
+      value: text,
+      id: Date.now(),
+      checked: false,
+      removed: false,
+    };
+    await addDoc(collection(db, 'users', uid, 'todos'), newTodo);
+    setText('');
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
   };
 
+  const handleFilter = (filter: Filter) => {
+    setFilter(filter);
+  };
   const handleEdit = (id: number, value: string) => {
     setTodos((todos) => {
       //それぞれのtodoについて処理する関数
@@ -59,7 +78,7 @@ export const TodoApp = () => {
             // todos ステート配列をチェック（あとでコメントアウト）
             console.log('=== Original todos ===');
             todos.map((todo) => {
-              console.log(`id: ${todo.id}, value: ${todo.value}`);
+              console.log(id: ${todo.id}, value: ${todo.value});
             });
             */
 
@@ -67,6 +86,25 @@ export const TodoApp = () => {
       return newTodos;
     });
   };
+
+  const handleEmpty = () => {
+    setTodos((todos) => todos.filter((todo) => !todo.removed));
+  }
+
+  const filteredTodos = todos.filter((todo) => {
+    switch (filter) {
+      case 'all':
+        return !todo.removed;
+      case 'checked':
+        return todo.checked && !todo.removed;
+      case 'unchecked':
+        return !todo.checked && !todo.removed;
+      case 'removed':
+        return todo.removed;
+      default:
+        return todo;
+    }
+  });
 
   const handleCheck = (id: number, checked: boolean) => {
     setTodos((todos) => {
@@ -94,38 +132,7 @@ export const TodoApp = () => {
     });
   };
 
-  const handleFilter = (filter: Filter) => {
-    setFilter(filter);
-  };
-
-  const filteredTodos = todos.filter((todo) => {
-    // filter ステートの値に応じて異なる内容の配列を返す
-    switch (filter) {
-      case 'all':
-        // 削除されていないもの
-        return !todo.removed;
-      case 'checked':
-        // 完了済 **かつ** 削除されていないもの
-        return todo.checked && !todo.removed;
-      case 'unchecked':
-        // 未完了 **かつ** 削除されていないもの
-        return !todo.checked && !todo.removed;
-      case 'removed':
-        // 削除済みのもの
-        return todo.removed;
-      default:
-        return todo;
-    }
-  });
-
-  const handleEmpty = () => {
-    setTodos((todos) => todos.filter((todo) => !todo.removed));
-  }
-
-
-
   return (
-    //単一のjsx要素を記述する<p>1行目</p> <p>2行目</p>のように複数要素はNG
     <div>
       <select defaultValue="all" onChange={(e) => handleFilter(e.target.value as Filter)}>
         <option value="all">すべてのタスク</option>
@@ -133,7 +140,7 @@ export const TodoApp = () => {
         <option value="unchecked">現在のタスク</option>
         <option value="removed">ごみ箱</option>
       </select>
-       {/* フィルターが `removed` のときは「ごみ箱を空にする」ボタンを表示 */}
+       {/* フィルターが removed のときは「ごみ箱を空にする」ボタンを表示 */}
     {filter === 'removed' ? (
       <button 
       onClick={handleEmpty}
@@ -191,6 +198,5 @@ export const TodoApp = () => {
     </div>
   );
 };
-
 
 export default TodoApp;
