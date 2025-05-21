@@ -1,73 +1,58 @@
 import React, { useState } from 'react';
+import { auth, signInWithEmailAndPassword } from './firebase';
 import { useNavigate } from 'react-router-dom';
-const LoginForm = () => {
+import { FirebaseError } from 'firebase/app';
+
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (event: React.FormEvent) => {
-    event.preventDefault(); // ページのリロードを防ぐ
-
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
-      const res = await fetch('http://localhost:3001/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage(`✅ ${data.message || 'ログイン成功'}`);
-        //ログイン成功時にTodoAppに遷移
-        navigate('/todo');
-      } else {
-        setMessage(`❌ ${data.message || 'ログインに失敗しました'}`);
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate('/todo');
+    } catch (err) {
+      const error = err as FirebaseError;
+      switch (error.code) {
+        default:
+          setError('ログインに失敗しました: ' + error.message);
       }
-      
-    } catch (error) {
-      console.error('Network error:', error);
-      setMessage('❌ ネットワークエラーが発生しました');
     }
   };
 
-  return (
-    <div style={{ maxWidth: '400px', margin: '2rem auto' }}>
-      <h2>ログイン</h2>
-      <form onSubmit={handleLogin}>
-        <div>
-          <label>メール:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div style={{ marginTop: '1rem' }}>
-          <label>パスワード:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit" style={{ marginTop: '1.5rem' }}>ログイン</button>
-        <button type="button"
-          style={{ marginTop: '1.5rem' }}
-          onClick={() => navigate('/register')}
-        >新規登録</button>
+  const handleGoToRegister = () => {
+    navigate('/register');
+  };
 
+  return (
+    <div>
+      <h2>Login</h2>
+      <form onSubmit={handleLogin}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
+        />
+        <button type="submit">Login</button>
       </form>
-      {message && (
-        <div style={{ marginTop: '1rem' }}>{message}</div>
-      )}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <hr />
+
+      <p>アカウントをお持ちでない方はこちら:</p>
+      <button onClick={handleGoToRegister}>新規登録</button>
     </div>
   );
 };
 
-export default LoginForm;
+export default Login;
