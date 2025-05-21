@@ -11,6 +11,12 @@ type Todo = {
   removed: boolean;
 };
 
+type TodoList = {
+  id: number;
+  name: string; //Todoタイトル
+  todos: Todo[];
+}
+
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
 export const TodoApp = () => {
@@ -56,81 +62,59 @@ export const TodoApp = () => {
     setText(e.target.value);
   };
 
+
   const handleFilter = (filter: Filter) => {
     setFilter(filter);
-  };
-  const handleEdit = (id: number, value: string) => {
-    setTodos((todos) => {
-      //それぞれのtodoについて処理する関数
-      //mapはshallow copyであり、表層しかコピーしない＝二段目以降のプロパティを参照する際に元の配列を参照してしまう。
-      const newTodos = todos.map((todo)=>{
-        if (todo.id === id) {
-          //スプレッド構文はイミュータブルな操作＝コピーを作成して展開する操作！
-          // 配列の階層ではなく要素の階層でshallow copyするからプロパティに関してもイミュータブルになる。
-          // 中のvalueプロパティを引数(入力文字列）で上書きする
-          return { ...todo, value: value};
-        }
-        return todo;
-
-      });
-
-      /*
-            // todos ステート配列をチェック（あとでコメントアウト）
-            console.log('=== Original todos ===');
-            todos.map((todo) => {
-              console.log(id: ${todo.id}, value: ${todo.value});
-            });
-            */
-
-      // /todosをnewTodosとして新たなステートを作成
-      return newTodos;
-    });
   };
 
   const handleEmpty = () => {
     setTodos((todos) => todos.filter((todo) => !todo.removed));
-  }
+  };
+
 
   const filteredTodos = todos.filter((todo) => {
+    // filter ステートの値に応じて異なる内容の配列を返す
     switch (filter) {
       case 'all':
+        // 削除されていないもの
         return !todo.removed;
       case 'checked':
+        // 完了済 **かつ** 削除されていないもの
         return todo.checked && !todo.removed;
       case 'unchecked':
+        // 未完了 **かつ** 削除されていないもの
         return !todo.checked && !todo.removed;
       case 'removed':
+        // 削除済みのもの
         return todo.removed;
       default:
         return todo;
     }
   });
 
-  const handleCheck = (id: number, checked: boolean) => {
+const handleTodo = <K extends keyof Todo, V extends Todo[K]>(
+    id: number,
+    key: K,
+    value: V
+  ) => {
+    //それぞれのtodoについて処理する関数
+      //mapはshallow copyであり、表層しかコピーしない＝二段目以降のプロパティを参照する際に元の配列を参照してしまう。
     setTodos((todos) => {
+      //スプレッド構文はイミュータブルな操作＝コピーを作成して展開する操作！
+          // 配列の階層ではなく要素の階層でshallow copyするからプロパティに関してもイミュータブルになる。
+          // 中のvalueプロパティを引数(入力文字列）で上書きする
       const newTodos = todos.map((todo) => {
         if (todo.id === id) {
-          return{ ...todo, checked};
+          return { ...todo, [key]: value };
+        } else {
+          return todo;
         }
-        return todo;
       });
 
       return newTodos;
     });
   };
 
-  const handleRemove = (id: number, removed: boolean) => {
-    setTodos((todos) => {
-      const newTodos = todos.map((todo) => {
-        if (todo.id === id) {
-          return { ...todo, removed};
-        }
-        return todo;
-      });
-
-      return newTodos;
-    });
-  };
 
   return (
     <div>
@@ -172,22 +156,24 @@ export const TodoApp = () => {
       <ul>
         {/* mapは非破壊メソッド＝イミュータブル */}
         {filteredTodos.map((todo) => {
-          return(
+          return (
             <li key={todo.id}>
               <input
                 type="checkbox"
                 disabled={todo.removed}
                 checked={todo.checked}
-                onChange={() => handleCheck(todo.id, !todo.checked)}
+                onChange={() => handleTodo(todo.id, 'checked', !todo.checked)}
               />
               <input
                 type="text"
-                disabled={todo.checked||todo.removed}
+                disabled={todo.checked || todo.removed}
                 value={todo.value}
-                onChange={(e) => handleEdit(todo.id, e.target.value)}
+                onChange={(e) => handleTodo(todo.id, 'value', e.target.value)}
               />
-              <button onClick={() => handleRemove(todo.id, !todo.removed)}>
-                {todo.removed ? '復元' : '削除'}  
+              <button
+                onClick={() => handleTodo(todo.id, 'removed', !todo.removed)}
+              >
+                {todo.removed ? '復元' : '削除'}
               </button>
             </li>
           );
