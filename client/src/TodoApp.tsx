@@ -11,11 +11,6 @@ type Todo = {
   removed: boolean;
 };
 
-type TodoList = {
-  id: number;
-  name: string; //Todoタイトル
-  todos: Todo[];
-}
 
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 

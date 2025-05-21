@@ -1,7 +1,19 @@
 // src/pages/Home.tsx
 
-import React, { useState } from 'react';
+import React, { useState , useEffect } from 'react';
+import { auth } from './firebase';
+import type { User } from '@firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db } from './firebase';
+
+import {
+    collection,
+    addDoc,
+    getDocs,
+    Timestamp
+} from 'firebase/firestore';
 import './Home.css'; // CSSファイルを読み込みます
+import Header from './Header';
 
 type Todo = {
     //プロパティ value は文字列型
@@ -20,7 +32,32 @@ type Post = {
 
 
 const Home: React.FC = () => {
-    //状態を保存しておく
+
+
+
+    useEffect(() => {
+    const fetchPosts = async () => {
+        const querySnapshot = await getDocs(collection(db, 'posts'));
+        const loadedPosts: Post[] = [];
+
+        querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        loadedPosts.push({
+            id: doc.id as unknown as number, // 本来 string 型
+            title: data.title,
+            date: data.date,
+            todos: data.todos,
+        });
+        });
+
+        setPosts(loadedPosts);
+    };
+
+    fetchPosts();
+    }, []);
+
+    
+
     const [posts, setPosts] = useState<Post[]>([]);//ポストの状態(配列)
     const [title, setTitle] = useState(''); //投稿のタイトルの状態
     const [currentTodo, setCurrentTodo] = useState<Todo[]>([]); //コンテンツの状態
@@ -43,7 +80,7 @@ const Home: React.FC = () => {
     }
 
 
-    const handlePost = () => {
+    const handlePost = async () => {
         if (!title || !currentTodo) return;
         const now = new Date();
         const newPost: Post = {
@@ -52,11 +89,25 @@ const Home: React.FC = () => {
             todos: currentTodo,
             date: now.toLocaleString(),
         };
-        setPosts((posts) => [newPost, ...posts]);
-        setTitle('');
-        setCurrentTodo([]);
+
+        try {
+            const userPostsRef = collection(db, 'users', auth.currentUser.uid, 'posts');
+            await addDoc(userPostsRef, {
+            title: newPost.title,
+            todos: newPost.todos,
+            date: Timestamp.now(),
+            });
+
+            setPosts((posts) => [newPost, ...posts]);
+            setTitle('');
+            setCurrentTodo([]);
+            } catch (e) {
+            console.error('投稿の保存に失敗しました', e);
+        }
     };
 
+
+    
     const handleEditTodo = (id: number, newValue: string) => {
         setCurrentTodo((prev) =>
             prev.map((todo) =>
@@ -68,9 +119,7 @@ const Home: React.FC = () => {
 
     return (
         <>
-            <header className="header">
-                <h1 className="header-title">TodoBoard</h1>
-            </header>
+            <Header />
 
             <div className="container">
             <h2>掲示板</h2>
