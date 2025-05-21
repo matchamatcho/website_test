@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "name": "山田 太郎",
+    "profile": "趣味はハイキングとプログラミングです。",
+    "iconUrl": "https://example.com/user1.png",
+    "skills": [
+      { "language": "Python", "level": 3 },
+      { "language": "JavaScript", "level": 2 }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "佐藤 花子",
+    "profile": "旅行と読書が好きです。",
+    "iconUrl": "https://example.com/user2.png",
+    "skills": []
+  }
+]
