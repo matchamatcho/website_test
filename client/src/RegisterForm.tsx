@@ -1,37 +1,44 @@
-// client/src/components/RegisterForm.tsx
+// /src/components/RegisterForm.tsx
 import React, { useState } from 'react';
+import { auth, createUserWithEmailAndPassword } from './firebase'; // firebase.tsからインポート
 import { useNavigate } from 'react-router-dom';
 
-const RegisterForm: React.FC = () => {
+const RegisterForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:3001/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-    setMessage(data.message);
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate('/login'); // 登録後、ログインページへ遷移
+    } catch (error: any) {
+      setError('Registration failed: ' + error.message);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>新規登録</h2>
-      <input type="email" placeholder="メールアドレス" value={email} onChange={e => setEmail(e.target.value)} required />
-      <input type="password" placeholder="パスワード" value={password} onChange={e => setPassword(e.target.value)} required />
-      <button type="submit">登録</button>
-      <p>{message}</p>
-      <button type="button"
-          style={{ marginTop: '1.5rem' }}
-          onClick={() => navigate('/login')}
-        >ログイン</button>
-    </form>
+    <div>
+      <h2>Register</h2>
+      <form onSubmit={handleRegister}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button type="submit">Register</button>
+      </form>
+      {error && <p>{error}</p>}
+    </div>
   );
 };
 
