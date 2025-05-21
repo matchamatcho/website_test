@@ -1,6 +1,6 @@
 # 情報共有
 
-## 環境構築
+## 環境構築a
 [TypeScript][def3]
 
 1. プロジェクトのフォルダを作成したいディレクトリで $npm create vite@latest<br>
