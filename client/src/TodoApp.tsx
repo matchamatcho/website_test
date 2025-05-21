@@ -11,6 +11,12 @@ type Todo = {
   removed: boolean;
 };
 
+type TodoList = {
+  id: number;
+  name: string; //Todoタイトル
+  todos: Todo[];
+}
+
 type Filter = 'all' | 'checked' | 'unchecked' | 'removed';
 
 export const TodoApp = () => {
@@ -18,6 +24,10 @@ export const TodoApp = () => {
   //useState<型指定>
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<Filter>('all');
+
+  const [lists, setLists] = useState<TodoList[]>([]);
+  const [selectedListId, setSelectedListId] = useState<number | null>(null);
+
 
   //追加ボタンがおされた時に呼び出される todosステートを更新する関数
   const handleSubmit = () => {
@@ -48,7 +58,6 @@ export const TodoApp = () => {
   const handleEmpty = () => {
     setTodos((todos) => todos.filter((todo) => !todo.removed));
   };
-
 
 
   const filteredTodos = todos.filter((todo) => {
@@ -96,8 +105,13 @@ const handleTodo = <K extends keyof Todo, V extends Todo[K]>(
 
 
   return (
-    //単一のjsx要素を記述する<p>1行目</p> <p>2行目</p>のように複数要素はNG
     <div>
+      <div>
+        <input value={newListName} onChange={(e) => setNewListName(e.target.value)} />
+        <button onClick={handleAddList}>リスト作成</button>
+      </div>
+    //単一のjsx要素を記述する<p>1行目</p> <p>2行目</p>のように複数要素はNG
+
       <select defaultValue="all" onChange={(e) => handleFilter(e.target.value as Filter)}>
         <option value="all">すべてのタスク</option>
         <option value="checked">完了したタスク</option>

@@ -1,0 +1,75 @@
+/*.〇〇 セレクターという。*/
+/*プロパティ一覧 https://www.tagindex.com/stylesheet/properties/　*/
+.container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.header {
+    background-color: #333;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+}
+
+
+h1 {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.input,
+.textarea {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.button {
+    padding: 8px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+.post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.post {
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 6px;
+    background: #f9f9f9;
+}
+
+.post-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+}
+
+.post-content {
+    margin: 0;
+}
