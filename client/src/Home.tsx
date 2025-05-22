@@ -1,11 +1,8 @@
-// src/pages/Home.tsx
-
 import React, { useState , useEffect } from 'react';
 import { auth } from './firebase';
-import type { User } from '@firebase/auth';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth'; // FirebaseUserを追加ampを追加
+import type { User as FirebaseUser } from 'firebase/auth'
 import { db } from './firebase';
-
 import {
     collection,
     addDoc,
@@ -33,34 +30,69 @@ type Post = {
 
 const Home: React.FC = () => {
 
+    const [posts, setPosts] = useState<Post[]>([]);//投稿されたポストの状態
+    const [title, setTitle] = useState(''); //Todoタイトル入力フォームの状態
+    const [submitTodoText, setSubmitTodoText] = useState(''); //Todo項目入力フォームの状態
+    const [currentTodo, setCurrentTodo] = useState<Todo[]>([]); //現在編集中のtodoリストの状態
+
     //DBから投稿を取得
+    //レンダリング後に実行される。第一引数には実行させたい副作用関数を記述する(今回はfetchPosts)
     useEffect(() => {
-    const fetchPosts = async () => {
-        const querySnapshot = await getDocs(collection(db, 'posts'));
-        const loadedPosts: Post[] = [];
+        console.log("useEffect triggered in Home.tsx"); // デバッグ用ログ
+        //Firestoreからデータを取得する非同期関数
+        const fetchPostsByAppUser = async (appUser: FirebaseUser) => {
 
-        querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        loadedPosts.push({
-            id: doc.id,
-            title: data.title,
-            date: data.date,
-            todos: data.todos,
+        console.log("fetchPostsByAppUser called for user:", appUser.uid); // デバッグ用ログ
+
+        try {
+            const userPostsRef = collection(db, 'users', appUser.uid, 'posts');
+            const querySnapshot = await getDocs(userPostsRef);
+            const loadedPosts: Post[] = [];
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                // Post型のidがstringであることを確認してください
+                // (例: client/src/models.tsx で export type Post = { id: string; ... })
+                loadedPosts.push({
+                id: doc.id,
+                title: data.title,
+                date: data.date instanceof Timestamp ? data.date.toDate().toLocaleString() : String(data.date || ''),
+                todos: data.todos || [], // todosが存在しない場合に備えて空配列をデフォルトに
+                });
+            });
+            console.log("Posts loaded:", loadedPosts); // デバッグ用ログ
+            setPosts(loadedPosts);
+            } catch (error) {
+            console.error("Error fetching posts:", error);
+            setPosts([]); // エラー時は投稿をクリアするなどの処理
+            }
+        };
+
+        // 認証状態の変更を監視するリスナー
+        //ログイン・ログアウト時に呼び出される
+        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+            if (firebaseUser) {
+            // ユーザーがログインしている、または認証状態が確認できた
+            console.log("User is authenticated, fetching posts for:", firebaseUser.uid); // デバッグ用ログ
+            fetchPostsByAppUser(firebaseUser);//認証状態が確認できたときにフェッチする
+            } else {
+            // ユーザーがログアウトしている
+            console.log("User is not authenticated."); // デバッグ用ログ
+            setPosts([]); // 投稿をクリア
+            }
         });
-        });
 
-        setPosts(loadedPosts);
-    };
-
-    fetchPosts();
+        // クリーンアップ関数: コンポーネントがアンマウントされるときに解除
+        return () => {
+            console.log("Unsubscribing from onAuthStateChanged."); // デバッグ用ログ
+            unsubscribe();
+        };
     }, []);
+    //空の配列を渡すことで初回レンダリング時のみ実行,アンマウント時にクリーンアップ関数が実行される
 
     
 
-    const [posts, setPosts] = useState<Post[]>([]);//ポストの状態(配列)
-    const [title, setTitle] = useState(''); //投稿のタイトルの状態
-    const [currentTodo, setCurrentTodo] = useState<Todo[]>([]); //コンテンツの状態
-    const [submitTodoText, setSubmitTodoText] = useState('');
+
 
     const handleAddTodo = () => {
         if (!submitTodoText) return;
