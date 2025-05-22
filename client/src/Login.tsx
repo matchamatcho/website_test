@@ -13,7 +13,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/todo');
+      navigate('/home');
     } catch (err) {
       const error = err as FirebaseError;
       switch (error.code) {
