@@ -24,7 +24,7 @@ type Todo = {
 };
 
 type Post = {
-    id: number;
+    id: string;
     title: string;
     date: string;
     todos: Todo[];
@@ -33,8 +33,7 @@ type Post = {
 
 const Home: React.FC = () => {
 
-
-
+    //DBから投稿を取得
     useEffect(() => {
     const fetchPosts = async () => {
         const querySnapshot = await getDocs(collection(db, 'posts'));
@@ -43,7 +42,7 @@ const Home: React.FC = () => {
         querySnapshot.forEach((doc) => {
         const data = doc.data();
         loadedPosts.push({
-            id: doc.id as unknown as number, // 本来 string 型
+            id: doc.id,
             title: data.title,
             date: data.date,
             todos: data.todos,
@@ -92,10 +91,15 @@ const Home: React.FC = () => {
 
         try {
             const userPostsRef = collection(db, 'users', auth.currentUser.uid, 'posts');
+            
+             // ★ Firestoreに送信する直前の currentTodo の内容を確認するためにログを追加
+            console.log('Submitting currentTodo to Firestore:', currentTodo);
+            console.log('Submitting title to Firestore:', title);
+
             await addDoc(userPostsRef, {
-            title: newPost.title,
-            todos: newPost.todos,
-            date: Timestamp.now(),
+                title: newPost.title,
+                todos: newPost.todos,
+                date: Timestamp.now(),
             });
 
             setPosts((posts) => [newPost, ...posts]);
